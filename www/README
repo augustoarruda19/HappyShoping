@@ -1,0 +1,106 @@
+cações maiores, como sistemas de compras online, cadastros de clientes ou plataformas de serviços.
+
+## 🔧 Tecnologias Utilizadas
+
+- **Node.js + Express**: Responsável pelo servidor backend e pelas rotas da API.
+- **MySQL**: Banco de dados relacional onde ficam armazenados os usuários.
+- **JavaScript + HTML + CSS**: Interface simples para consumir a API.
+- **CORS e Body-Parser**: Usados para permitir comunicação entre frontend e backend, e para tratar dados enviados no formato JSON.
+
+## 📂 Funcionalidades Principais
+
+### 1. Conexão com o Banco de Dados
+
+O sistema conecta-se ao banco MySQL chamado `happyshopping`. Dentro desse banco, existe a tabela `usuarios`, que armazena:
+
+| Campo    | Tipo            | Descrição                   |
+|----------|-----------------|-----------------------------|
+| `id`     | INT (PK, Auto)   | Identificador único (autoincremento) |
+| `nome`   | VARCHAR(255)     | Nome do usuário             |
+| `email`  | VARCHAR(255)     | E-mail único de login       |
+| `senha`  | VARCHAR(255)     | Senha cadastrada            |
+
+### 2. Rotas da API
+
+O backend disponibiliza os seguintes **endpoints REST**:
+
+#### 🔹 Rota Inicial
+
+- **Método**: `GET /`
+- **Descrição**: Retorna uma mensagem de status confirmando que o servidor está ativo.
+
+#### 🔹 Cadastro de Usuário
+
+- **Método**: `POST /usuarios`
+- **Descrição**: Recebe um objeto JSON com nome, email e senha para cadastrar um novo usuário.
+  
+**Exemplo de Request**:
+
+```json
+{
+  "nome": "Ana Silva",
+  "email": "ana@email.com",
+  "senha": "123456"
+}
+Resposta (Sucesso):
+
+json
+Copiar código
+{
+  "message": "Usuário cadastrado com sucesso!"
+}
+Resposta (Erro):
+
+json
+Copiar código
+{
+  "error": "Campos faltando ou falha na inserção."
+}
+🔹 Listagem de Usuários
+Método: GET /usuarios
+
+Descrição: Retorna todos os registros de usuários cadastrados no banco de dados.
+
+Exemplo de Resposta:
+
+json
+Copiar código
+[
+  { "id": 1, "nome": "Ana Silva", "email": "ana@email.com", "senha": "123456" },
+  { "id": 2, "nome": "João Souza", "email": "joao@email.com", "senha": "abcdef" }
+]
+🚀 Fluxo de Funcionamento
+O usuário acessa o frontend (HTML/JS).
+
+O frontend envia requisições para o backend Node.js.
+
+O backend processa os dados e acessa o banco MySQL.
+
+O banco retorna os dados, que são exibidos na interface para o usuário.
+
+🛠️ Como Rodar o Projeto
+1. Clone o repositório
+bash
+Copiar código
+git clone https://github.com/seu-usuario/happyshopping.git
+2. Instale as dependências
+bash
+Copiar código
+cd happyshopping
+npm install
+3. Configure o Banco de Dados
+Certifique-se de que o MySQL está instalado e crie um banco de dados chamado happyshopping.
+
+sql
+Copiar código
+CREATE DATABASE happyshopping;
+4. Inicie o Servidor
+bash
+Copiar código
+npm start
+O servidor estará disponível em http://localhost:3000.
+
+5. Teste as APIs
+Para testar o cadastro de usuários, envie uma requisição POST para http://localhost:3000/usuarios com um JSON contendo os dados do usuário.
+
+Para listar os usuários cadastrados, envie uma requisição GET para http://localhost:3000/usuarios.
