@@ -78,19 +78,6 @@ O backend processa os dados e acessa o banco MySQL.
 
 O banco retorna os dados, que são exibidos na interface para o usuário.
 
-🛠️ Como Rodar o Projeto
-1. Clone o repositório
-bash
-Copiar código
-git clone https://github.com/seu-usuario/happyshopping.git
-2. Instale as dependências
-bash
-Copiar código
-cd happyshopping
-npm install
-3. Configure o Banco de Dados
-Certifique-se de que o MySQL está instalado e crie um banco de dados chamado happyshopping.
-
 sql
 Copiar código
 CREATE DATABASE happyshopping;
