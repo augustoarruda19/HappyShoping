@@ -5,7 +5,7 @@ document.getElementById('formCadastro').addEventListener('submit', function(e) {
   const email = e.target.email.value;
   const senha = e.target.senha.value;
 
-  fetch('http://192.168.15.7:3000/usuarios', {
+  fetch('http://192.168.15.8:3000/usuarios', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json'

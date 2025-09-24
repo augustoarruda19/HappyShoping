@@ -1,3 +1,5 @@
+// server.js CORRIGIDO
+
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
@@ -6,15 +8,15 @@ const cors = require('cors');
 const app = express();
 const port = 3000;
 
-// Middlewares
+// Middlewares - DEVE VIR PRIMEIRO
 app.use(cors());
 app.use(bodyParser.json());
 
 // Conexão com o banco de dados MySQL
 const db = mysql.createConnection({
   host: 'localhost',
-  user: 'root', // seu usuário do MySQL
-  password: 'root', // sua senha do MySQL
+  user: 'root',
+  password: 'root',
   database: 'happyshopping'
 });
 
@@ -34,7 +36,6 @@ app.get('/', (req, res) => {
 // Rota para cadastro de usuário
 app.post('/usuarios', (req, res) => {
   const { nome, email, senha } = req.body;
-  //lógica de inserção
 
   if (!nome || !email || !senha) {
     return res.status(400).send('Todos os campos são obrigatórios');
@@ -51,7 +52,7 @@ app.post('/usuarios', (req, res) => {
   });
 });
 
-// Rota para listar usuários (extra)
+// Rota para listar usuários
 app.get('/usuarios', (req, res) => {
   db.query('SELECT * FROM usuarios', (err, results) => {
     if (err) {
@@ -63,7 +64,24 @@ app.get('/usuarios', (req, res) => {
   });
 });
 
-// Inicializando servidor
-app.listen(port, () => {
-  console.log(`🚀 Servidor rodando em http://localhost:${port}`);
+// Rota para cadastrar um novo produto
+app.post('/produtos', (req, res) => {
+  const { tipo, nome, marca, descricao, preco, imagem, categoria } = req.body;
+  if (!nome || !preco) {
+    return res.status(400).send('Campos obrigatórios ausentes');
+  }
+  const sql = `INSERT INTO produtos
+    (tipo, nome, marca, descricao, preco, imagem, categoria)
+    VALUES (?, ?, ?, ?, ?, ?, ?)`;
+  db.query(sql, [tipo, nome, marca, descricao, preco, imagem, categoria], (err, result) => {
+    if (err) {
+      console.error('Erro ao inserir produto:', err);
+      return res.status(500).send('Erro ao cadastrar produto');
+    }
+    res.status(201).json({ id: result.insertId, message: 'Produto criado' });
+  });
+});
+
+app.listen(3000, '0.0.0.0', () => {
+  console.log('Servidor rodando em http://0.0.0.0:3000');
 });

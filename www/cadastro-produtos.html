@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <title>Cadastro de Produtos</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <style>
+    /* estilos mínimos */
+    body { font-family: Arial, sans-serif; padding: 20px; background:#f5f5f5; }
+    form { background:#fff; padding:16px; border-radius:8px; max-width:500px; margin:auto; }
+    input, textarea { width:100%; padding:8px; margin:8px 0; border-radius:4px; border:1px solid #ccc; }
+    button { background:#fa7304; color:#fff; border:none; padding:10px 14px; border-radius:6px; cursor:pointer; }
+    .msg { margin-top:10px; font-weight:600; }
+  </style>
+</head>
+<body>
+
+  <form id="formCadastroProduto">
+    <h2>Cadastro de Produto</h2>
+
+    <input type="text" id="tipo" name="tipo" placeholder="Tipo de Produto" required>
+    <input type="text" id="nomeProduto" name="nome" placeholder="Nome do Produto" required>
+    <input type="text" id="marca" name="marca" placeholder="Marca do Produto" required>
+    <textarea id="descricao" name="descricao" placeholder="Descrição"></textarea>
+    <input type="number" id="preco" name="preco" placeholder="Preço" step="0.01" required>
+    <input type="text" id="imagem" name="imagem" placeholder="URL da Imagem (opcional)">
+    <input type="text" id="categoria" name="categoria" placeholder="Categoria">
+
+    <button type="submit">Cadastrar</button>
+    <div id="mensagem" class="msg"></div>
+  </form>
+
+  <script>
+  // Delegated submit handler: funciona mesmo quando a página é injetada dinamicamente
+  document.addEventListener('submit', async function (e) {
+    const form = e.target;
+    if (!form || form.id !== 'formCadastroProduto') return; // ignora outros formulários
+
+    e.preventDefault();
+
+    // pega valores
+    const dados = {
+      tipo: document.getElementById('tipo').value.trim(),
+      nome: document.getElementById('nomeProduto').value.trim(),
+      marca: document.getElementById('marca').value.trim(),
+      descricao: document.getElementById('descricao').value.trim(),
+      preco: parseFloat(document.getElementById('preco').value),
+      imagem: document.getElementById('imagem').value.trim(),
+      categoria: document.getElementById('categoria').value.trim()
+    };
+
+    // URL do servidor: ajuste se necessário
+    // Se você abre o front via IP (ex: 192.168.15.7:5500), use o IP com porta 3000
+    const SERVER = (location.hostname === 'localhost' || location.hostname === '127.0.0.1')
+      ? 'http://localhost:3000'
+      : `http://${location.hostname}:3000`;
+
+    const mensagemEl = document.getElementById('mensagem');
+    mensagemEl.textContent = 'Enviando...';
+
+    try {
+      const res = await fetch(`${SERVER}/produtos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(dados)
+      });
+
+      if (res.ok) {
+        mensagemEl.style.color = 'green';
+        mensagemEl.textContent = '✅ Produto cadastrado com sucesso! Redirecionando...';
+        // esperar 1.2s e redirecionar para a página inicial
+        setTimeout(() => {
+          // se usa Framework7 com router, use: app.views.main.router.navigate('/'); 
+          // mas para funcionar em ambos os casos usamos window.location:
+          window.location.href = 'index.html';
+        }, 1200);
+      } else {
+        const text = await res.text();
+        mensagemEl.style.color = 'red';
+        mensagemEl.textContent = 'Erro: ' + (text || res.statusText);
+      }
+    } catch (err) {
+      console.error('Erro de conexão:', err);
+      mensagemEl.style.color = 'red';
+      mensagemEl.textContent = 'Falha de conexão com o servidor (verificar se server está rodando)';
+    }
+  });
+  </script>
+</body>
+</html>

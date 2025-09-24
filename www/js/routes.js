@@ -91,6 +91,27 @@ var app = new Framework7({
 		},
 	  }
     },
+
+       {
+      path: '/cadastro-produtos/',
+      url: 'pages/cadastro-produtos.html',
+      animate: false,
+	  on: {
+		pageBeforeIn: function (event, page) {
+		// fazer algo antes da página ser exibida
+		},
+		pageAfterIn: function (event, page) {
+		// fazer algo depois da página ser exibida
+		},
+		pageInit: function (event, page) {
+		$.getScript("js/script-cadastro-produto.js")
+		},
+		pageBeforeRemove: function (event, page) {
+		// fazer algo antes da página ser removida do DOM
+		},
+	  }
+
+    },  
     {
       path: '/link2/',
       url: 'link2.html',
@@ -169,7 +190,7 @@ var app = new Framework7({
     },
 
  {
-      path: '/cadastrp/',
+      path: '/cadastro/',
       url: 'cadastro.html',
       animate: false,
 	  on: {
@@ -186,8 +207,7 @@ var app = new Framework7({
 		// fazer algo antes da página ser removida do DOM
 		},
 	  }
-    },
-    
+    },  
     
   ],
   // ... other parameters
