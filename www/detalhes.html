@@ -1,73 +1,175 @@
 <!DOCTYPE html>
-<html>
-
+<html lang="pt-br">
 <head>
-    <!-- Required meta tags-->
-    <meta charset="utf-8">
-    <meta name="viewport"
+  <meta charset="utf-8">
+  <meta name="viewport"
         content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <!-- Color theme for statusbar (Android only) -->
-    <meta name="theme-color" content="#2196f3">
-    <!-- Your app title -->
-    <title>Template Tab</title>
-    <!-- Path to Framework7 Library Bundle CSS -->
-    <link rel="stylesheet" href="lib/framework7-bundle.min.css">
-    <!-- CSS PERSONALIZADO PARA MENU-->
-    <link rel="stylesheet" href="css/index.css">
-    <!--Ícones Material Design-->
-    <link rel="stylesheet" href="css/materialdesignicons.min.css">
-    <!-- Ícones do Remix icon-->
-    <link rel="stylesheet" href="css/remixicon/remixicon.css">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="theme-color" content="#2196f3">
+  <title>Detalhes do Produto</title>
 
-
+  <!-- Framework7 -->
+  <link rel="stylesheet" href="lib/framework7-bundle.min.css">
+  <!-- CSS personalizado -->
+  <link rel="stylesheet" href="css/detalhes.css">
+  <!-- Ícones -->
+  <link rel="stylesheet" href="css/materialdesignicons.min.css">
+  <link rel="stylesheet" href="css/remixicon/remixicon.css">
 </head>
-
 <body>
-    <!-- App root element -->
-    <div id="app">
+  <div id="app">
+    <div class="view view-main">
+      <div data-name="detalhes" class="page color-theme-blue">
 
-        <!-- Your main view, should have "view-main" class -->
-        <div class="view view-main">
+        <!-- Toolbar inferior -->
+        <div class="toolbar toolbar-bottom">
+          <div class="toolbar-inner display-flex align-items-center justify-content-center">
+            <div class="flex-40 text-align-center">
+              <span class="riscado color-gray" id="precoAntigo"></span>
+              <h3 class="princing no-padding no-margin" id="precoAtual"></h3>
+            </div>
+            <div class="flex-60">
+              <button class="add-cart" id="btnAdicionarCarrinho">Adicionar ao Carrinho</button>
+            </div>
+          </div>
+        </div>
 
-            <!-- TAB BAR-->
-            <div class="toolbar toolbar-bottom">
-                <div class="toolbar-inner display-flex">
-                    <a href="/index/" class="tab-link link active">
-                        <i class="ri-home-4-fill"></i>
-                        <span>Home</span>
-                    </a>
-                    <a href="/link2/" class="tab-link link">
-                        <i class="ri-search-line"></i>
-                        <span>Busca</span>
-                    </a>
-                    <a href="/link3/" class="tab-link link">
-                        <i class="ri-heart-fill"></i>
-                        <span>Favoritos</span>
-                    </a>
-                     <a href="/link4/" class="tab-link link">
-                        <i class="ri-user-3-fill"></i>
-                        <span>Conta</span>
-                    </a>
+        <!-- Conteúdo -->
+        <div class="page-content">
+          <div class="prod-detail">
+            <div class="buttons-top">
+              <a href="#" id="btnVoltar"><i class="ri-arrow-left-s-line"></i></a>
+              <a href="#"><i class="ri-heart-3-line"></i></a>
+              <a href="#"><i class="ri-share-2-fill"></i></a>
+            </div>
+            <img id="imagemProduto" src="img/placeholder.png" alt="Imagem do produto">
+          </div>
 
-                </div>
+          <div class="prod-content">
+            <div class="block">
+              <div class="line padding-top">
+                <b id="nomeProduto">Carregando...</b>
+                <button class="promo-btn" id="promocaoBtn" style="display: none;">Promoção</button>
+              </div>
+              <button class="btn-rates"><i class="mdi mdi-star"></i> 4.8</button>
+              <button class="btn-rates"><i class="ri-thumb-up-fill"></i> 90%</button>
+              <span class="color-gray">110 reviews</span>
             </div>
 
-            <!-- Initial Page, "data-name" contains page name -->
-            <div data-name="detalhes" class="page color-theme-blue">
+            <p id="descricaoProduto">Carregando descrição...</p>
+          </div>
 
+          <table>
+            <tr>
+              <th>Características</th>
+              <th>Detalhes</th>
+            </tr>
+            <tr>
+              <td>Categoria</td>
+              <td id="categoriaProduto">---</td>
+            </tr>
+            <tr>
+              <td>Marca</td>
+              <td id="marcaProduto">---</td>
+            </tr>
+            <tr>
+              <td>Tipo</td>
+              <td id="tipoProduto">---</td>
+            </tr>
+          </table>
+        </div>
 
-                <!-- Scrollable page content -->
-                <div class="page-content">
-                    
- 
-    <!-- Path to Framework7 Library Bundle JS-->
-    <script type="text/javascript" src="lib/framework7-bundle.min.js"></script>
-	<!-- jQuery -->
-	<script type="text/javascript" src="lib/jquery-3.7.0.min.js"></script>	
-    <!-- Roteamento do app-->
-    <script type="text/javascript" src="js/routes.js"></script>
-    <script src="cordova.js"></script>
+      </div>
+    </div>
+  </div>
+
+  <!-- Scripts -->
+  <script src="lib/framework7-bundle.min.js"></script>
+  <script src="lib/jquery-3.7.0.min.js"></script>
+  <script src="js/routes.js"></script>
+  <script src="cordova.js"></script>
+
+  <script>
+    async function carregarDetalhes() {
+      const params = new URLSearchParams(window.location.search);
+      const id = params.get("id");
+
+      if (!id) {
+        alert("Produto não encontrado!");
+        window.location.href = "index.html";
+        return;
+      }
+
+      try {
+        const response = await fetch(`http://127.0.0.1:3000/produtos/${id}`);
+        if (!response.ok) throw new Error("Erro ao buscar produto.");
+
+        const produto = await response.json();
+
+        // Atualiza informações na página
+        document.getElementById("imagemProduto").src = produto.imagem || "img/placeholder.png";
+        document.getElementById("nomeProduto").textContent = produto.nome;
+        document.getElementById("descricaoProduto").textContent = produto.descricao || "Sem descrição disponível.";
+
+        // ✅ Formata os preços no padrão brasileiro
+        const precoFormatado = parseFloat(produto.preco)
+          .toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+        document.getElementById("precoAtual").textContent = precoFormatado;
+
+        document.getElementById("categoriaProduto").textContent = produto.categoria || "---";
+        document.getElementById("marcaProduto").textContent = produto.marca || "---";
+        document.getElementById("tipoProduto").textContent = produto.tipo || "---";
+
+        // Exibir botão de promoção apenas se houver preço antigo
+        if (produto.preco_antigo) {
+          document.getElementById("promocaoBtn").style.display = "inline-block";
+          const precoAntigoFormatado = parseFloat(produto.preco_antigo)
+            .toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+          document.getElementById("precoAntigo").textContent = precoAntigoFormatado;
+        }
+
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao carregar detalhes do produto.");
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      carregarDetalhes();
+
+      // Botão voltar
+      document.getElementById("btnVoltar").addEventListener("click", (e) => {
+        e.preventDefault();
+        window.location.href = "index.html";
+      });
+
+      // Adicionar ao carrinho e redirecionar
+      document.getElementById("btnAdicionarCarrinho").addEventListener("click", async () => {
+        const produtoId = new URLSearchParams(window.location.search).get("id");
+        const usuarioId = localStorage.getItem("usuarioId");
+        const quantidade = 1;
+
+        if (!usuarioId) {
+          alert("Você precisa estar logado para adicionar ao carrinho!");
+          return;
+        }
+
+        try {
+          const response = await fetch("http://127.0.0.1:3000/carrinho", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ usuario_id: usuarioId, produto_id: produtoId, quantidade })
+          });
+
+          const data = await response.json();
+          alert(data.message);
+          window.location.href = "carrinho.html";
+        } catch (err) {
+          console.error(err);
+          alert("Erro ao adicionar ao carrinho.");
+        }
+      });
+    });
+  </script>
 </body>
-
-</html
+</html>
