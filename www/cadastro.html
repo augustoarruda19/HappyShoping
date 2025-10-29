@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <title>Cadastro de Usuário</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f5f5f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    form {
+      background: white;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0px 0px 10px rgba(0,0,0,0.1);
+      width: 300px;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border: 1px solid #ccc;
+      border-radius: 5px;
+    }
+    button {
+      background: #fa7304;
+      color: white;
+      border: none;
+      padding: 10px;
+      border-radius: 5px;
+      cursor: pointer;
+      width: 100%;
+    }
+    button:hover {
+      background: #fa7304;
+    }
+    .msg {
+      margin-top: 10px;
+      font-size: 14px;
+    }
+  </style>
+</head>
+<body>
+
+  <form id="formCadastro">
+    <h2>Cadastro Happy</h2>
+    <input type="text" id="nome" placeholder="Nome" required>
+    <input type="email" id="email" placeholder="E-mail" required>
+    <input type="password" id="senha" placeholder="Senha" required>
+    <button type="submit">Cadastrar</button>
+    <div class="msg" id="mensagem"></div>
+  </form>
+
+  <script>
+  document.getElementById('formCadastro').addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const nome = document.getElementById('nome').value;
+    const email = document.getElementById('email').value;
+    const senha = document.getElementById('senha').value;
+
+    try {
+      const response = await fetch('http://localhost:3000/usuarios', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ nome, email, senha })
+      });
+
+      const msg = document.getElementById('mensagem');
+      if (response.ok) {
+        msg.textContent = "✅ Usuário cadastrado com sucesso!";
+        msg.style.color = "green";
+
+        // aguarda 1,5 segundos antes de redirecionar
+        setTimeout(() => {
+          window.location.href = "http://127.0.0.1:5500/www/";
+        }, 1500);
+
+      } else {
+        msg.textContent = "❌ Erro ao cadastrar usuário!";
+        msg.style.color = "red";
+      }
+    } catch (error) {
+      console.error("Erro:", error);
+      document.getElementById('mensagem').textContent = "⚠️ Falha de conexão com o servidor";
+    }
+  });
+</script>
+
+
+</body>
+</html>
