@@ -1,149 +1,40 @@
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <meta name="viewport"
-        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no">
+        content="width=device-width, initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no" />
   <title>Meu Carrinho</title>
 
-  <!-- Framework7 -->
-  <link rel="stylesheet" href="lib/framework7-bundle.min.css">
-  <link rel="stylesheet" href="css/materialdesignicons.min.css">
-  <link rel="stylesheet" href="css/remixicon/remixicon.css">
-  <link rel="stylesheet" href="css/carrinho.css">
+  <link rel="stylesheet" href="lib/framework7-bundle.min.css" />
+  <link rel="stylesheet" href="css/materialdesignicons.min.css" />
+  <link rel="stylesheet" href="css/remixicon/remixicon.css" />
 
   <style>
-    body {
-      background-color: #f8f8f8;
-      font-family: "Poppins", sans-serif;
-      margin: 0;
-      padding: 0;
-    }
-
-    .nav-top {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 15px 20px;
-      background-color: white;
-      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
-    }
-
-    .nav-top strong {
-      font-size: 18px;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-    }
-
-    .cart-item {
-      background: white;
-      border-radius: 20px;
-      margin: 15px;
-      padding: 15px;
-      display: flex;
-      align-items: center;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .cart-item img {
-      width: 80px;
-      height: 80px;
-      border-radius: 10px;
-      object-fit: cover;
-      margin-right: 15px;
-    }
-
-    .item-info {
-      flex: 1;
-    }
-
-    .item-info h4 {
-      margin: 0;
-      font-size: 16px;
-      color: #333;
-    }
-
-    .item-info p {
-      margin: 3px 0;
-      color: #666;
-      font-size: 14px;
-    }
-
-    .quantity-control {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      margin-top: 8px;
-      gap: 10px;
-    }
-
-    .quantity-control button {
-      background-color: #ff7a00;
-      color: white;
-      border: none;
-      width: 26px;
-      height: 26px;
-      border-radius: 50%;
-      font-size: 18px;
-      cursor: pointer;
-    }
-
-    .quantity-control span {
-      font-size: 16px;
-    }
-
-    .cart-summary {
-      background: white;
-      margin: 20px;
-      border-radius: 20px;
-      padding: 20px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
-    }
-
-    .summary-line {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 8px;
-      font-size: 15px;
-    }
-
-    .summary-line strong {
-      color: #333;
-    }
-
-    .checkout-btn {
-      display: block;
-      width: 90%;
-      margin: 20px auto;
-      background-color: #ff7a00;
-      color: white;
-      border: none;
-      border-radius: 30px;
-      font-size: 18px;
-      padding: 15px;
-      text-align: center;
-      font-weight: bold;
-      cursor: pointer;
-      box-shadow: 0 4px 10px rgba(255, 122, 0, 0.3);
-    }
-
-    .checkout-btn:hover {
-      background-color: #e56e00;
-    }
-
-    .ri-delete-bin-line {
-      cursor: pointer;
-      color: #ff7a00;
-    }
+    body { background:#f8f8f8; font-family: "Poppins", sans-serif; margin:0; padding:0; }
+    .nav-top { display:flex; align-items:center; justify-content:space-between; padding:15px 20px; background:#fff; box-shadow:0 2px 5px rgba(0,0,0,0.08); }
+    .nav-top strong { font-size:18px; display:flex; align-items:center; gap:6px; }
+    #carrinho-container { padding:10px 6px; }
+    .cart-item { background:#fff; border-radius:14px; margin:10px 6px; padding:12px; display:flex; align-items:center; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+    .cart-item img { width:80px; height:80px; border-radius:10px; object-fit:cover; margin-right:12px; }
+    .item-info { flex:1; }
+    .item-info h4 { margin:0; font-size:16px; color:#333; }
+    .item-info p { margin:4px 0; color:#666; font-size:14px; }
+    .price { color:#fa7304; font-weight:bold; font-size:15px; margin-top:4px; }
+    .quantity-control { display:flex; align-items:center; gap:8px; margin-top:8px; }
+    .quantity-control button { width:30px; height:30px; border-radius:50%; border:none; background:#fa7304; color:white; font-size:18px; cursor:pointer; }
+    .cart-summary { background:#fff; margin:12px; border-radius:14px; padding:16px; box-shadow:0 2px 6px rgba(0,0,0,0.05); }
+    .summary-line { display:flex; justify-content:space-between; margin-bottom:8px; font-size:15px; }
+    .checkout-btn { display:block; width:90%; margin:14px auto; background:#fa7304; color:#fff; border:none; border-radius:30px; padding:14px; font-size:16px; font-weight:700; cursor:pointer; box-shadow:0 4px 10px rgba(250,115,4,0.2); }
+    .ri-delete-bin-line { cursor:pointer; color:#fa7304; font-size:20px; padding-left:10px; }
   </style>
 </head>
 <body>
 
   <div class="nav-top">
-    <a href="#" onclick="window.history.back()"><i class="ri-arrow-left-s-line" style="font-size: 24px;"></i></a>
+    <a href="index.html"><i class="ri-arrow-left-s-line" style="font-size:24px;"></i></a>
     <strong><i class="ri-shopping-cart-2-line"></i> Meu Carrinho</strong>
-    <a href="#"><i class="ri-more-2-fill"></i></a>
+    <span></span>
   </div>
 
   <div id="carrinho-container"></div>
@@ -156,91 +47,142 @@
 
   <button class="checkout-btn" id="checkout">Finalizar compra</button>
 
-  <script src="lib/framework7-bundle.min.js"></script>
   <script src="lib/jquery-3.7.0.min.js"></script>
 
   <script>
+    const BASE = 'http://127.0.0.1:3000';
+
+    function formatBR(val) {
+      return Number(val).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+    }
+
+    function getUsuarioId() {
+      const params = new URLSearchParams(window.location.search);
+      const u = params.get('usuario_id') || localStorage.getItem('usuarioId') || '1';
+      return u;
+    }
+
     async function carregarCarrinho() {
-      const usuarioId = localStorage.getItem("usuarioId");
-      if (!usuarioId) {
-        alert("Você precisa estar logado para ver o carrinho.");
-        return;
-      }
-
+      const usuarioId = getUsuarioId();
       try {
-        const response = await fetch(`http://127.0.0.1:3000/carrinho/${usuarioId}`);
-        if (!response.ok) throw new Error("Erro ao buscar carrinho");
+        const res = await fetch(`${BASE}/carrinho/${usuarioId}`);
+        if (!res.ok) throw new Error('Erro ao buscar carrinho');
+        const itens = await res.json();
 
-        const itens = await response.json();
-        const container = document.getElementById("carrinho-container");
-        container.innerHTML = "";
-
+        const container = document.getElementById('carrinho-container');
+        container.innerHTML = '';
         let subtotal = 0;
 
         itens.forEach(item => {
-          subtotal += item.preco * item.quantidade;
+          subtotal += (item.preco * item.quantidade);
 
-          const div = document.createElement("div");
-          div.className = "cart-item";
+          const div = document.createElement('div');
+          div.className = 'cart-item';
           div.innerHTML = `
             <img src="${item.imagem || 'img/placeholder.png'}" alt="${item.nome}">
             <div class="item-info">
               <h4>${item.nome}</h4>
-              <p>R$ ${item.preco.toFixed(2)}</p>
+              <div class="price">${formatBR(item.preco)}</div>
               <div class="quantity-control">
-                <button onclick="alterarQuantidade(${item.id}, ${item.quantidade - 1})">−</button>
-                <span>${item.quantidade}</span>
-                <button onclick="alterarQuantidade(${item.id}, ${item.quantidade + 1})">+</button>
+                <button data-id="${item.id}" class="btn-decr">−</button>
+                <span class="qtd">${item.quantidade}</span>
+                <button data-id="${item.id}" class="btn-incr">+</button>
               </div>
             </div>
-            <i class="ri-delete-bin-line" onclick="removerItem(${item.id})"></i>
+            <i class="ri-delete-bin-line" data-id="${item.id}"></i>
           `;
           container.appendChild(div);
         });
 
-        document.getElementById("subtotal").innerText = "R$ " + subtotal.toFixed(2);
-      } catch (error) {
-        console.error("Erro ao carregar carrinho:", error);
+        document.getElementById('subtotal').innerText = formatBR(subtotal);
+
+        document.querySelectorAll('.btn-decr').forEach(b => b.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          const current = Number(e.currentTarget.nextElementSibling.textContent);
+          const nova = current - 1;
+          if (nova < 1) {
+            if (!confirm('Remover item do carrinho?')) return;
+            await removerItem(id);
+          } else {
+            await alterarQuantidade(id, nova);
+          }
+        }));
+
+        document.querySelectorAll('.btn-incr').forEach(b => b.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          const current = Number(e.currentTarget.previousElementSibling.textContent);
+          const nova = current + 1;
+          await alterarQuantidade(id, nova);
+        }));
+
+        document.querySelectorAll('.ri-delete-bin-line').forEach(el => el.addEventListener('click', async (e) => {
+          const id = e.currentTarget.getAttribute('data-id');
+          if (!confirm('Remover este item do carrinho?')) return;
+          await removerItem(id);
+        }));
+      } catch (err) {
+        console.error('Erro ao carregar carrinho:', err);
       }
     }
 
     async function alterarQuantidade(id, novaQtd) {
-      if (novaQtd < 1) return removerItem(id); // se for zero, remove o item
-
-      try {
-        const response = await fetch(`http://127.0.0.1:3000/carrinho/${id}`, {
-          method: "PUT",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ quantidade: novaQtd })
-        });
-
-        if (!response.ok) throw new Error("Erro ao atualizar quantidade");
-        carregarCarrinho();
-      } catch (err) {
-        console.error(err);
-        alert("Erro ao alterar quantidade.");
-      }
+      await fetch(`${BASE}/carrinho/${id}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ quantidade: novaQtd })
+      });
+      carregarCarrinho();
     }
 
     async function removerItem(id) {
-      if (!confirm("Remover este item do carrinho?")) return;
-      try {
-        const response = await fetch(`http://127.0.0.1:3000/carrinho/${id}`, {
-          method: "DELETE"
-        });
-        const data = await response.json();
-        alert(data.message);
-        carregarCarrinho();
-      } catch (err) {
-        console.error("Erro ao remover:", err);
-      }
+      await fetch(`${BASE}/carrinho/${id}`, { method: 'DELETE' });
+      carregarCarrinho();
     }
 
-    document.getElementById("checkout").addEventListener("click", () => {
-      alert("Compra finalizada com sucesso!");
+    // ------------------------
+    // FINALIZAR COMPRA (NOVA PARTE)
+    // ------------------------
+    document.getElementById('checkout').addEventListener('click', async () => {
+      const usuarioId = getUsuarioId();
+
+      try {
+        const itensRes = await fetch(`${BASE}/carrinho/${usuarioId}`);
+        const itens = await itensRes.json();
+
+        if (itens.length === 0) {
+          alert("Seu carrinho está vazio!");
+          return;
+        }
+
+        const valorTotal = itens.reduce((acc, item) => acc + (item.preco * item.quantidade), 0);
+
+        const pedidoRes = await fetch(`${BASE}/pedidos`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            usuario_id: usuarioId,
+            valor_total: valorTotal,
+            itens: itens
+          })
+        });
+
+        if (!pedidoRes.ok) {
+          alert("Erro ao finalizar compra!");
+          return;
+        }
+
+        await fetch(`${BASE}/carrinho/usuario/${usuarioId}`, { method: 'DELETE' });
+
+        alert("Compra finalizada com sucesso!");
+        carregarCarrinho();
+
+      } catch (err) {
+        console.error(err);
+        alert("Erro ao processar pedido.");
+      }
     });
 
-    document.addEventListener("DOMContentLoaded", carregarCarrinho);
+    document.addEventListener('DOMContentLoaded', carregarCarrinho);
   </script>
 </body>
 </html>
