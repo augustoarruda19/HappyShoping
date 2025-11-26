@@ -1,5 +1,4 @@
 // server.js
-
 const express = require('express');
 const bodyParser = require('body-parser');
 const mysql = require('mysql');
@@ -8,17 +7,16 @@ const path = require('path');
 
 const app = express();
 const port = 3000;
+const BASE_HOST = 'http://127.0.0.1:' + port;
 
-// MIDDLEWARES
-
+// Middlewares
 app.use(cors());
 app.use(bodyParser.json());
 
-// Permite servir arquivos estáticos (imagens, etc.)
+// Servir imagens estáticas
 app.use('/img', express.static(path.join(__dirname, 'public/img')));
 
-// CONEXÃO COM MYSQL
-
+// Conexão MySQL
 const db = mysql.createConnection({
   host: 'localhost',
   user: 'root',
@@ -29,129 +27,108 @@ const db = mysql.createConnection({
 db.connect((err) => {
   if (err) {
     console.error('❌ Erro ao conectar ao MySQL:', err);
-    return;
+    process.exit(1);
   }
   console.log('✅ Conectado ao MySQL!');
 });
 
-// ROTAS
+app.get('/', (req, res) => res.send('Servidor rodando 🚀'));
 
-// Teste
-app.get('/', (req, res) => {
-  res.send('Servidor rodando 🚀');
-});
+/* ===== PRODUTOS ===== */
 
-// USUÁRIOS
-app.post('/usuarios', (req, res) => {
-  const { nome, email, senha } = req.body;
-  if (!nome || !email || !senha) {
-    return res.status(400).json({ error: 'Todos os campos são obrigatórios.' });
-  }
-
-  const sql = 'INSERT INTO usuarios (nome, email, senha) VALUES (?, ?, ?)';
-  db.query(sql, [nome, email, senha], (err) => {
-    if (err) {
-      console.error('❌ Erro ao cadastrar usuário:', err);
-      return res.status(500).json({ error: 'Erro ao cadastrar usuário.' });
-    }
-    res.status(201).json({ message: 'Usuário cadastrado com sucesso!' });
-  });
-});
-
-app.get('/usuarios', (req, res) => {
-  db.query('SELECT * FROM usuarios', (err, results) => {
-    if (err) {
-      console.error('❌ Erro ao buscar usuários:', err);
-      return res.status(500).json({ error: 'Erro ao buscar usuários.' });
-    }
-    res.json(results);
-  });
-});
-
-// PRODUTOS
-
-// Cadastrar novo produto
-app.post('/produtos', (req, res) => {
-  const { tipo, nome, marca, descricao, preco, imagem, categoria } = req.body;
-  if (!nome || !preco) {
-    return res.status(400).json({ error: 'Nome e preço são obrigatórios.' });
-  }
-
-  const sql = `
-    INSERT INTO produtos (tipo, nome, marca, descricao, preco, imagem, categoria)
-    VALUES (?, ?, ?, ?, ?, ?, ?)
-  `;
-  db.query(sql, [tipo, nome, marca, descricao, preco, imagem, categoria], (err, result) => {
-    if (err) {
-      console.error('❌ Erro ao inserir produto:', err);
-      return res.status(500).json({ error: 'Erro ao cadastrar produto.' });
-    }
-    res.status(201).json({ id: result.insertId, message: 'Produto criado com sucesso!' });
-  });
-});
-
-// Listar todos os produtos
+// Listar produtos
 app.get('/produtos', (req, res) => {
-  const sql = 'SELECT * FROM produtos ORDER BY id DESC';
+  const sql = 'SELECT id, nome, descricao, preco, imagem FROM produtos ORDER BY id DESC';
+
   db.query(sql, (err, results) => {
     if (err) {
       console.error('❌ Erro ao buscar produtos:', err);
       return res.status(500).json({ error: 'Erro ao buscar produtos.' });
     }
 
-    // Adiciona URL completa à imagem, caso não venha do banco
-    const produtos = results.map((p) => ({
+    const produtos = results.map(p => ({
       ...p,
       imagem: p.imagem
-        ? p.imagem.startsWith('http')
-          ? p.imagem
-          : `http://192.168.15.6:3000/img/${p.imagem}`
-        : 'http://192.168.15.6:3000/img/placeholder.png',
+        ? (p.imagem.startsWith('http') ? p.imagem : `${BASE_HOST}/img/${p.imagem}`)
+        : `${BASE_HOST}/img/placeholder.png`
     }));
 
     res.json(produtos);
   });
 });
 
-// Buscar produto pelo ID (para detalhes.html)
+// Cadastrar novo produto
+app.post('/produtos', (req, res) => {
+    // Pega os dados enviados pelo frontend (script-cadastro-produto.js)
+    const { tipo, nome, marca, descricao, preco, imagem, categoria } = req.body;
+
+    // ⚠️ VALIDAÇÃO BÁSICA
+    if (!nome || !preco) {
+        return res.status(400).json({ error: "Nome e preço do produto são obrigatórios." });
+    }
+
+    // O comando INSERT deve corresponder exatamente às colunas da sua tabela
+    const sql = 'INSERT INTO produtos (nome, descricao, preco, imagem, categoria, tipo, marca) VALUES (?, ?, ?, ?, ?, ?, ?)';
+
+    // Prepara os valores na ordem correta
+    const values = [nome, descricao, preco, imagem, categoria, tipo, marca];
+
+    db.query(sql, values, (err, result) => {
+        if (err) {
+            console.error("❌ Erro ao cadastrar produto:", err);
+            // Retorna erro 500 caso o INSERT falhe (ex: erro de tipagem no MySQL)
+            return res.status(500).json({ error: "Erro interno ao cadastrar produto." });
+        }
+
+        // Retorna sucesso
+        return res.status(201).json({ message: "Produto cadastrado com sucesso!", id: result.insertId });
+    });
+});
+
+// Produto por ID
 app.get('/produtos/:id', (req, res) => {
-  const { id } = req.params;
-  const sql = 'SELECT * FROM produtos WHERE id = ?';
+  const id = req.params.id;
+
+  const sql = 'SELECT id, nome, descricao, preco, imagem FROM produtos WHERE id = ?';
   db.query(sql, [id], (err, results) => {
     if (err) {
       console.error('❌ Erro ao buscar produto:', err);
       return res.status(500).json({ error: 'Erro ao buscar produto.' });
     }
 
-    if (results.length === 0) {
+    if (!results.length) {
       return res.status(404).json({ error: 'Produto não encontrado.' });
     }
 
-    const produto = results[0];
-    produto.imagem = produto.imagem
-      ? produto.imagem.startsWith('http')
-        ? produto.imagem
-        : `http://192.168.15.6:3000/img/${produto.imagem}`
-      : 'http://192.168.15.6:3000/img/placeholder.png';
+    const p = results[0];
+    p.imagem = p.imagem
+      ? (p.imagem.startsWith('http') ? p.imagem : `${BASE_HOST}/img/${p.imagem}`)
+      : `${BASE_HOST}/img/placeholder.png`;
 
-    res.json(produto);
+    res.json(p);
   });
 });
 
-// CARRINHO
+/* ===== CARRINHO ===== */
+
+// Adicionar ao carrinho
 app.post('/carrinho', (req, res) => {
   const { usuario_id, produto_id, quantidade } = req.body;
+  if (!usuario_id || !produto_id)
+    return res.status(400).json({ error: 'usuario_id e produto_id são obrigatórios.' });
 
-  const checkQuery = 'SELECT * FROM carrinho WHERE usuario_id = ? AND produto_id = ?';
-  db.query(checkQuery, [usuario_id, produto_id], (err, result) => {
+  const q = quantidade && Number.isInteger(quantidade) ? quantidade : 1;
+
+  const checkSql = 'SELECT id, quantidade FROM carrinho WHERE usuario_id = ? AND produto_id = ?';
+  db.query(checkSql, [usuario_id, produto_id], (err, rows) => {
     if (err) {
       console.error('❌ Erro ao verificar carrinho:', err);
       return res.status(500).json({ error: 'Erro ao verificar carrinho.' });
     }
 
-    if (result.length > 0) {
-      const updateQuery = 'UPDATE carrinho SET quantidade = quantidade + ? WHERE usuario_id = ? AND produto_id = ?';
-      db.query(updateQuery, [quantidade, usuario_id, produto_id], (err) => {
+    if (rows.length) {
+      const updateSql = 'UPDATE carrinho SET quantidade = quantidade + ? WHERE usuario_id = ? AND produto_id = ?';
+      db.query(updateSql, [q, usuario_id, produto_id], (err) => {
         if (err) {
           console.error('❌ Erro ao atualizar carrinho:', err);
           return res.status(500).json({ error: 'Erro ao atualizar carrinho.' });
@@ -159,8 +136,8 @@ app.post('/carrinho', (req, res) => {
         return res.json({ message: 'Quantidade atualizada no carrinho.' });
       });
     } else {
-      const insertQuery = 'INSERT INTO carrinho (usuario_id, produto_id, quantidade) VALUES (?, ?, ?)';
-      db.query(insertQuery, [usuario_id, produto_id, quantidade], (err) => {
+      const insertSql = 'INSERT INTO carrinho (usuario_id, produto_id, quantidade, criado_em) VALUES (?, ?, ?, NOW())';
+      db.query(insertSql, [usuario_id, produto_id, q], (err) => {
         if (err) {
           console.error('❌ Erro ao adicionar ao carrinho:', err);
           return res.status(500).json({ error: 'Erro ao adicionar ao carrinho.' });
@@ -171,7 +148,183 @@ app.post('/carrinho', (req, res) => {
   });
 });
 
-// INICIALIZA SERVIDOR
+// Listar itens do carrinho
+app.get('/carrinho/:usuario_id', (req, res) => {
+  const usuario_id = req.params.usuario_id;
+
+  const sql = `
+    SELECT c.id as carrinho_id, c.usuario_id, c.produto_id, c.quantidade,
+           p.nome, p.descricao, p.preco, p.imagem
+    FROM carrinho c
+    JOIN produtos p ON c.produto_id = p.id
+    WHERE c.usuario_id = ?
+  `;
+
+  db.query(sql, [usuario_id], (err, results) => {
+    if (err) {
+      console.error('❌ Erro ao buscar carrinho:', err);
+      return res.status(500).json({ error: 'Erro ao buscar carrinho.' });
+    }
+
+    const itens = results.map(r => ({
+      id: r.carrinho_id,
+      usuario_id: r.usuario_id,
+      produto_id: r.produto_id,
+      quantidade: r.quantidade,
+      nome: r.nome,
+      descricao: r.descricao,
+      preco: parseFloat(r.preco),
+      imagem: r.imagem
+        ? (r.imagem.startsWith('http') ? r.imagem : `${BASE_HOST}/img/${r.imagem}`)
+        : `${BASE_HOST}/img/placeholder.png`
+    }));
+
+    res.json(itens);
+  });
+});
+
+// Atualizar quantidade
+app.put('/carrinho/:id', (req, res) => {
+  const id = req.params.id;
+  const { quantidade } = req.body;
+
+  if (!id || quantidade == null)
+    return res.status(400).json({ error: 'id e quantidade são obrigatórios.' });
+
+  const sql = 'UPDATE carrinho SET quantidade = ? WHERE id = ?';
+  db.query(sql, [quantidade, id], (err) => {
+    if (err) {
+      console.error('❌ Erro ao atualizar quantidade:', err);
+      return res.status(500).json({ error: 'Erro ao atualizar quantidade.' });
+    }
+    res.json({ message: 'Quantidade atualizada.' });
+  });
+});
+
+// Remover item
+app.delete('/carrinho/:id', (req, res) => {
+  const id = req.params.id;
+
+  const sql = 'DELETE FROM carrinho WHERE id = ?';
+  db.query(sql, [id], (err) => {
+    if (err) {
+      console.error('❌ Erro ao remover item:', err);
+      return res.status(500).json({ error: 'Erro ao remover item.' });
+    }
+    res.json({ message: 'Item removido com sucesso.' });
+  });
+});
+
+/* ===== USUÁRIOS ===== */
+
+// Cadastrar usuário
+app.post('/usuarios', (req, res) => {
+  const { nome, email, senha } = req.body;
+
+  if (!nome || !email || !senha) {
+    return res.status(400).json({ error: "Campos obrigatórios faltando." });
+  }
+
+  const sql = 'INSERT INTO usuarios (nome, email, senha, criado_em) VALUES (?, ?, ?, NOW())';
+
+  db.query(sql, [nome, email, senha], (err, result) => {
+    if (err) {
+      console.error("❌ Erro ao cadastrar usuário:", err);
+      return res.status(500).json({ error: "Erro ao cadastrar usuário." });
+    }
+
+    return res.status(201).json({ message: "Usuário cadastrado com sucesso!" });
+  });
+});
+
+// Iniciar servidor
 app.listen(port, '0.0.0.0', () => {
-  console.log(`🚀 Servidor rodando em: http://192.168.15.6:${port}`);
+  console.log(`🚀 Servidor rodando em: ${BASE_HOST}`);
+});
+
+/* ===== FINALIZAR COMPRA ===== */
+
+/* ===== PEDIDOS ===== */
+
+// Finalizar compra
+app.post('/pedidos', (req, res) => {
+  const { usuario_id } = req.body;
+
+  if (!usuario_id) {
+    return res.status(400).json({ error: "usuario_id é obrigatório." });
+  }
+
+  // 1. Buscar itens do carrinho
+  const sqlCarrinho = `
+    SELECT c.produto_id, c.quantidade, p.preco
+    FROM carrinho c
+    JOIN produtos p ON p.id = c.produto_id
+    WHERE c.usuario_id = ?
+  `;
+
+  db.query(sqlCarrinho, [usuario_id], (err, itens) => {
+    if (err) {
+      console.error("❌ Erro ao buscar carrinho:", err);
+      return res.status(500).json({ error: "Erro ao buscar carrinho." });
+    }
+
+    if (!itens.length) {
+      return res.status(400).json({ error: "Carrinho vazio." });
+    }
+
+    // 2. Calcular valor total
+    const total = itens.reduce((soma, item) => {
+      return soma + (item.preco * item.quantidade);
+    }, 0);
+
+    // 3. Criar pedido
+    const sqlPedido = `
+      INSERT INTO pedidos (usuario_id, data_pedido, valor_total, status)
+      VALUES (?, NOW(), ?, 'PENDENTE')
+    `;
+
+    db.query(sqlPedido, [usuario_id, total], (err, result) => {
+      if (err) {
+        console.error("❌ Erro ao criar pedido:", err);
+        return res.status(500).json({ error: "Erro ao criar pedido." });
+      }
+
+      const pedidoId = result.insertId;
+
+      // 4. Inserir itens do pedido
+      const sqlItens = `
+        INSERT INTO itens_pedido (pedido_id, produto_id, quantidade, preco_unitario)
+        VALUES ?
+      `;
+
+      const valores = itens.map(item => [
+        pedidoId,
+        item.produto_id,
+        item.quantidade,
+        item.preco
+      ]);
+
+      db.query(sqlItens, [valores], (err) => {
+        if (err) {
+          console.error("❌ Erro ao inserir itens do pedido:", err);
+          return res.status(500).json({ error: "Erro ao inserir itens." });
+        }
+
+        // 5. Limpar carrinho
+        db.query("DELETE FROM carrinho WHERE usuario_id = ?", [usuario_id], (err) => {
+          if (err) {
+            console.error("❌ Erro ao limpar carrinho:", err);
+            return res.status(500).json({ error: "Erro ao limpar carrinho." });
+          }
+
+          // 6. Sucesso!
+          res.status(201).json({
+            message: "Pedido finalizado com sucesso!",
+            pedido_id: pedidoId,
+            total: total
+          });
+        });
+      });
+    });
+  });
 });
