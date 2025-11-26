@@ -1,0 +1,14 @@
+:root{
+    --branco: #ffff;
+    --gelo: #f1f1f1;
+    --Laranja: #fa7304;
+    --Preto: #2a2a2a;
+}
+
+.nav-top-cart{
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+    background-color: white;
+    padding: 10px 0px;
+}
